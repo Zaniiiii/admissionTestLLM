@@ -18,7 +18,7 @@ def test_retrieval():
 
     # 3. Test Cases
     queries = [
-        "What is CVE-1999-0002?",  # Should retrieve CVE
+        "What is CVE-2025-5331",  # Should retrieve CVE
         "Does anyone use password '123456'?", # Should retrieve Person (maybe)
         "Who is Alicia Gonzalez?", # Should retrieve Person
     ]
