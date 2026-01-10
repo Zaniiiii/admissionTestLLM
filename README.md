@@ -1,52 +1,84 @@
-# Admission Test 1 - Safe RAG System
+# Admission Test 1 - Safe RAG System (Ollama Edition)
 
-This project implements a Retrieval Augmented Generation (RAG) system capable of answering queries about Common Vulnerabilities and Exposures (CVEs) while strictly enforcing privacy guardrails to protect Personal Identifiable Information (PII).
+This project implements a Retrieval Augmented Generation (RAG) system specialized for **Cybersecurity & CVE Analysis**. It answers technical queries about Common Vulnerabilities and Exposures (CVEs) while enforcing strict privacy guardrails to preventing Personal Identifiable Information (PII) leakage.
 
-## Features
+## 🚀 Key Features
 
-- **RAG Architecture**: Uses ChromaDB for vector storage and retrieval.
-- **Local LLM**: Utilizes `Qwen/Qwen2.5-0.5B-Instruct` for local inference.
-- **Safety Guardrails**: Implements a "Safety Guard" using few-shot prompting to detect and block PII leakage (e.g., answering questions about people's private data) while correctly answering security-related queries.
-- **Mac Optimization**: optimized to run efficiently on macOS (using CPU for maximum stability with small models).
+*   **Model**: Powered by **Qwen 2.5 14B** (via Ollama) for high-fidelity technical reasoning.
+*   **Privacy First ("Ghost Rule")**:
+    *   **Strict PII Block**: Refuses to locate individuals or confirm sensitive personal data.
+    *   **Anonymity**: Automatically replaces proper names (e.g., "Alicia", "Sean") with generic roles (e.g., "The user", "The attacker") in technical responses.
+*   **Structured Technical Data**: Security answers explicitly provide:
+    *   **CVE ID**
+    *   **CWE (Common Weakness Enumeration)**
+    *   **CVSS Scores & Severity**
+    *   **Description**
+    *   **Mitigation Advice**
+*   **Performance Metrics**: Real-time logging of inference speed (tokens/sec).
+*   **RAG Pipeline**: Hybrid retrieval using ChromaDB to contextually match user queries with CVE databases.
 
-## Project Structure
+## 🛠️ Project Structure
 
-- `src/`: Core source code.
-  - `pipeline.py`: Main RAG pipeline orchestrator.
-  - `llm_engine.py`: Wrapper for the Hugging Face Transformers model.
-  - `safety_guard.py`: Logic for constructing safe prompts and handling PII.
-  - `vector_store.py`: Interface for ChromaDB.
-  - `data_ingestion.py`: Utilities for loading and processing datasets.
-- `data/`: Data directory.
-  - `chroma_db/`: Persisted vector database.
-  - `raw/`: Raw datasets (Personal and CVE data).
-- `main.py`: Entry point for the application.
+- `src/`
+  - `llm_engine.py`: Ollama client wrapper with speed logging.
+  - `safety_guard.py`: **Core Safety Logic**. Implements the system prompt, privacy blocks, and the "Ghost Rule".
+  - `pipeline.py`: Orchestrates retrieval and generation.
+  - `vector_store.py`: ChromaDB interface.
+- `benchmark/`: Evaluation suite.
+  - `runner.py`: Benchmarking script for accuracy and refusal rates.
+  - `prompts.json`: Test cases.
+- `data/`: Vector database and raw datasets.
 
-## Installation
+## 📦 Installation
 
-1. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   ```
+1.  **Install Python Dependencies**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # or venv\Scripts\activate on Windows
+    pip install -r requirements.txt
+    ```
 
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+2.  **Install Ollama**:
+    Download and install [Ollama](https://ollama.com/).
 
-## Usage
+3.  **Pull the Model**:
+    The system is optimized for `qwen2.5:14b`.
+    ```bash
+    ollama pull qwen2.5:14b
+    ```
 
-To run the main application:
+## ⚡ Usage
+
+### Running the RAG System
+To interact with the system or run specific tests:
 
 ```bash
-python main.py
+# Run the main pipeline (example script)
+python src/main.py
 ```
 
-The system will ingest the data (if not already done) and you can interact with the RAG pipeline.
+*(Note: Ensure Ollama is running in the background)*
 
-## Safety Mechanism
+### Benchmarking
+To measure performance and safety compliance:
 
-The system uses a strict system prompt and few-shot examples to distinguish between:
-1. **PII Requests** (e.g., "Who is John Doe?"): These are strictly REFUSED.
-2. **Security Requests** (e.g., "Explain CVE-2024-1234"): These are ANSWERED in detail.
+```bash
+python benchmark/runner.py
+```
+
+## 🛡️ Safety Protocols
+
+The `SafetyGuard` enforces the following rules at the prompt level:
+
+1.  **PRIVACY BLOCK**:
+    *   *Trigger*: Queries asking for personal addresses, identity verification ("Who is X?"), or attribution of guilt.
+    *   *Response*: "**PRIVACY BLOCK**: I cannot verify individual data or attribute actions to specific individuals."
+
+2.  **TECHNICAL ANONYMITY**:
+    *   *Trigger*: Technical questions mentioning specific names (e.g., "How did Sean hack the router?").
+    *   *Response*: Provides technical details about the CVE/Vulnerability but **removes usage of the name**, referring instead to "The attacker" or "The user".
+
+## 📊 Performance Notes
+
+*   **Inference Speed**: On typical consumer hardware (e.g., RTX 3060), `qwen2.5:14b` may run at ~4-5 tokens/sec.
+*   **Memory**: Requires ~8-10GB of VRAM/RAM.

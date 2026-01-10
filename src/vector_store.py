@@ -7,8 +7,8 @@ class VectorStore:
         self.client = chromadb.PersistentClient(path=persist_dir)
         self.collection = self.client.get_or_create_collection(name="united_knowledge_base")
         
-        print("Loading Embedding Model (all-MiniLM-L6-v2)...")
-        self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
+        print("Loading Embedding Model (all-mpnet-base-v2)...")
+        self.embedder = SentenceTransformer('all-mpnet-base-v2')
 
     def add_documents(self, documents, metadatas, ids):
         if self.collection.count() > 0:
@@ -26,10 +26,16 @@ class VectorStore:
         )
         print("Storage Complete!")
 
-    def query(self, query_text, k=3):
+    def query(self, query_text, k=5, where=None): # Ubah k=3 menjadi k=5
         query_embedding = self.embedder.encode([query_text]).tolist()
-        results = self.collection.query(
-            query_embeddings=query_embedding,
-            n_results=k
-        )
-        return results['documents'][0]
+        
+        query_args = {
+            "query_embeddings": query_embedding,
+            "n_results": k # Gunakan k yang baru
+        }
+        if where:
+            query_args["where"] = where
+            
+        results = self.collection.query(**query_args)
+        # Return both documents and metadatas
+        return results['documents'][0], results['metadatas'][0]
