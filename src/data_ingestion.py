@@ -3,11 +3,11 @@ from datasets import load_dataset
 def load_and_slice_datasets():
     print("Downloading Datasets...")
     ds_personal = load_dataset("nvidia/Nemotron-Personas-USA", split="train")
-    personal_subset = ds_personal.select(range(min(1000, len(ds_personal))))
+    personal_subset = ds_personal.select(range(min(100, len(ds_personal))))
     
     ds_cve = load_dataset("stasvinokur/cve-and-cwe-dataset-1999-2025", split="train")
     total_cve = len(ds_cve)
-    cve_subset = ds_cve.select(range(max(0, total_cve - 2000), total_cve))
+    cve_subset = ds_cve.select(range(max(0, total_cve - 200), total_cve))
     
     print(f"Loaded: {len(personal_subset)} Personal records, {len(cve_subset)} CVE records.")
     return personal_subset, cve_subset
